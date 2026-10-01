@@ -1,38 +1,120 @@
+import os
 
-from flask import Flask, jsonify
-from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_bcrypt import Bcrypt
-from pathlib import Path
+from functools import wraps
+from flask import Flask, request, session, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__, instance_relative_config=True)
+from models import db_all, db_one, db_run, init_db
 
-# Ensure the instance folder exists for the database.
-Path(app.instance_path).mkdir(parents=True, exist_ok=True)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"sqlite:///{Path(app.instance_path) / 'nextrole.db'}"
-)
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# Development configuration.
-CORS(app, supports_credentials=True)
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-bcrypt = Bcrypt(app)
+app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 
-@app.get("/")
-def home():
-    return jsonify({"message": "Welcome to the NextRole API!"})
+if not app.config["SECRET_KEY"]:
+    raise RuntimeError("SECRET_KEY environment variable is not set")
+
+init_db()
 
 
-@app.get("/api/health")
-def health():
-    return jsonify({"status": "ok"})
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if "user_id" not in session:
+            return jsonify({"error": "Not logged in"}), 401
+        return f(*args, **kwargs)
+    return wrapper
+
+@app.post("/api/signup")
+def signup():
+    data = request.get_json()
+    email, password = data.get("email"), data.get("password")
+    if not email or not password:
+        return jsonify({"error": "Email and password required"}), 400
+    if db_one("SELECT id FROM users WHERE email = ?", (email,)):
+        return jsonify({"error": "Email already in use"}), 400
+
+    user_id, _ = db_run(
+        "INSERT INTO users (email, password_hash) VALUES (?, ?)",
+        (email, generate_password_hash(password)),
+    )
+    session["user_id"] = user_id
+    return jsonify({"email": email}), 201
+
+
+@app.post("/api/login")
+def login():
+    data = request.get_json()
+    user = db_one("SELECT * FROM users WHERE email = ?", (data.get("email"),))
+    if not user or not check_password_hash(user["password_hash"], data.get("password", "")):
+        return jsonify({"error": "Invalid email or password"}), 401
+
+    session["user_id"] = user["id"]
+    return jsonify({"email": user["email"]})
+
+
+@app.post("/api/logout")
+def logout():
+    session.clear()
+    return jsonify({"success": True})
+
+
+@app.get("/api/me")
+def me():
+    if "user_id" not in session:
+        return jsonify({"user": None})
+    user = db_one("SELECT email FROM users WHERE id = ?", (session["user_id"],))
+    return jsonify({"user": user})
+
+
+@app.get("/api/applications")
+@login_required
+def get_applications():
+    rows = db_all(
+        "SELECT * FROM applications WHERE user_id = ? ORDER BY id DESC",
+        (session["user_id"],),
+    )
+    return jsonify(rows)
+
+
+@app.post("/api/applications")
+@login_required
+def create_application():
+    data = request.get_json()
+    company, role = data.get("company"), data.get("role")
+    if not company or not role:
+        return jsonify({"error": "Company and role required"}), 400
+
+    new_id, _ = db_run(
+        "INSERT INTO applications (user_id, company, role) VALUES (?, ?, ?)",
+        (session["user_id"], company, role),
+    )
+    return jsonify(db_one("SELECT * FROM applications WHERE id = ?", (new_id,))), 201
+
+
+@app.patch("/api/applications/<int:app_id>")
+@login_required
+def update_application(app_id):
+    status = request.get_json().get("status")
+    _, changed = db_run(
+        "UPDATE applications SET status = ? WHERE id = ? AND user_id = ?",
+        (status, app_id, session["user_id"]),
+    )
+    if changed == 0:
+        return jsonify({"error": "Not found"}), 404
+    return jsonify(db_one("SELECT * FROM applications WHERE id = ?", (app_id,)))
+
+
+@app.delete("/api/applications/<int:app_id>")
+@login_required
+def delete_application(app_id):
+    _, changed = db_run(
+        "DELETE FROM applications WHERE id = ? AND user_id = ?",
+        (app_id, session["user_id"]),
+    )
+    if changed == 0:
+        return jsonify({"error": "Not found"}), 404
+    return jsonify({"success": True})
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)
