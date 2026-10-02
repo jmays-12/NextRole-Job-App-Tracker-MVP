@@ -30,11 +30,12 @@ A full-stack job application tracker. Sign up, log in, and keep track of the job
 ### 1. Backend
 
 ```bash
-cd server
-python -m venv .venv
-source .venv/bin/activate   
-pip install -r requirements.txt
-python app.py
+  cd server
+  python -m venv .venv
+  source .venv/bin/activate        # Windows: .venv\Scripts\activate
+  pip install -r requirements.txt
+  cp .env.example .env             # then edit .env and set SECRET_KEY
+  python app.py
 ```
 
 The server runs on http://localhost:5001.

@@ -69,8 +69,8 @@ export default function Dashboard({ user, onLogout }) {
     };
 
     return (
-        <>
-            <div className={theme.page}>
+        <div className={theme.page}>
+            <div className={theme.container}>
                 <div className={theme.header}>
                     <h1 className={theme.title}>NextRole</h1>
                     <p className={theme.tagline}>Application Tracker</p>
@@ -106,7 +106,7 @@ export default function Dashboard({ user, onLogout }) {
                             <p className={theme.companyName}><strong>{app.company}</strong></p>&nbsp;{app.role}
                             {app.notes && <p className={theme.notes}>Notes: {app.notes}</p>}
                             <div className={theme.row}>
-                                <select value={app.status} onChange={(e) => handleStatus(app.id, e.target.value)}>
+                                <select className={theme.dropdown} value={app.status} onChange={(e) => handleStatus(app.id, e.target.value)}>
                                     {STATUSES.map((s) => <option key={s}>{s}</option>)}
                                 </select>
                                 <div className={theme.editButtons}>
@@ -118,6 +118,6 @@ export default function Dashboard({ user, onLogout }) {
                     )
                 )}
             </div>
-        </>
+        </div>
     );
 }
