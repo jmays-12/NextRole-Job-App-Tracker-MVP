@@ -1,9 +1,11 @@
-
 # Python
 __pycache__/
 *.py[cod]
 .venv/
 .env
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
 
 # SQLite database files
 *.db
@@ -12,7 +14,7 @@ __pycache__/
 
 # Node
 node_modules/
-frontend/dist/
+dist/
 
 # Editor / OS
 .vscode/
