@@ -117,7 +117,7 @@ export default function Dashboard({ user, onLogout }) {
             <div className={theme.container}>
                 <div className={theme.header}>
                     <h1 className={theme.title}>NextRole</h1>
-                    <p className={theme.tagline}>Application Tracker</p>
+                    <p className={theme.tagline}>Job Application Tracker</p>
                     <div className={theme.userControls}>
                         <span className={theme.username}>{user.email}</span>
 

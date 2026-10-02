@@ -2,11 +2,12 @@ export const theme = {};
 // initialize empty theme object first so we can inherit from other components
 theme.page = `min-h-screen bg-slate-50 relative overflow-hidden`
 
-theme.container = `max-w-2xl mx-auto p-4 m-10 `
-theme.header = `flex items-center gap-3`
-theme.title = `text-2xl font-bold mb-3`
-theme.tagline = `pb-2 ml-auto`
-theme.username = `italic underline pt-2`
+theme.container = `max-w-2xl mx-auto p-4 m-10 shadow-lg`
+theme.header = `flex items-center gap-3 mb-1`
+theme.title = `text-3xl font-bold mb-3`
+theme.tagline = `pb-2 mr-auto`
+theme.username = `italic underline pt-2 `
+theme.userControls = `ml-auto flex gap-3 mb-3`
 
 theme.card = `border rounded p-3 mb-3`
 
@@ -34,7 +35,6 @@ theme.chipOn = {
 }
 
 
-theme.userControls = `ml-auto flex gap-3`
 theme.companyName = `capitalize underline text-xl m-1`
 theme.role = `text-gray-800 m-1 block`
 // theme.notes = `border rounded border-gray-500 p-2 bg-amber-50 text-sm text-gray-500 m-1 whitespace-pre-line`
