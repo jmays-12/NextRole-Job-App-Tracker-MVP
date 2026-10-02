@@ -144,10 +144,11 @@ export default function Dashboard({ user, onLogout }) {
 
                                     <p className={theme.helpPopupTitle}><strong><u>How to use NextRole</u></strong></p>
                                     <p>Add a job application using the form below.</p>
-                                    <p>Use the status buttons to track where you are in the hiring process.</p>
-                                    <p>Click <strong>Edit</strong> to add notes or update application details.</p>
-                                    <p>Click <strong>Delete</strong> to remove an application.</p>
+                                    <p>Use the <i>Status buttons</i> to track where you are in the hiring process.</p>
+                                    <p>Click <i>Edit</i> to add notes or update application details.</p>
+                                    <p>Click <i>Delete</i> to remove an application.</p>
                                     <p>Job links will open in a new tab.</p>
+                                    <p>Good luck on your next career!</p>
                                 </div>
                             )}
                         </div>

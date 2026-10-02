@@ -23,20 +23,23 @@ export default function AuthForm({ onAuth }) {
     return (
         <div className={theme.page}>
             <div className={theme.container}>
-                <h1 className={theme.heading}>NextRole - {isSignup ? "Sign up" : "Log in"}</h1>
+                <div className={theme.header}>
+                    <h1 className={theme.title}>NextRole</h1>
+                    <span className={theme.tagline}>Job Application Tracker</span>
+                </div><p className={theme.tagline}>{isSignup ? "Sign up" : "Log in"}</p>
                 {error && <p className={theme.error}>{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <input
                         className={theme.input}
                         type="email"
-                        placeholder="Email"
+                        placeholder=" Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
                     <input
                         className={theme.input}
                         type="password"
-                        placeholder="Password"
+                        placeholder=" Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
