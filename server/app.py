@@ -4,14 +4,15 @@ from functools import wraps
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request, session
+from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from models import db_all, db_one, db_run, init_db
-from werkzeug.security import check_password_hash, generate_password_hash
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
+bcrypt = Bcrypt(app)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 
@@ -45,7 +46,7 @@ def signup():
 
     user_id, _ = db_run(
         "INSERT INTO users (email, password_hash) VALUES (?, ?)",
-        (email, generate_password_hash(password)),
+        (email, bcrypt.generate_password_hash(password).decode("utf-8")),
     )
     session["user_id"] = user_id
     return jsonify({"email": email}), 201
@@ -55,7 +56,7 @@ def signup():
 def login():
     data = request.get_json()
     user = db_one("SELECT * FROM users WHERE email = ?", (data.get("email"),))
-    if not user or not check_password_hash(
+    if not user or not bcrypt.check_password_hash(
         user["password_hash"], data.get("password", "")
     ):
         return jsonify({"error": "Invalid email or password"}), 401
