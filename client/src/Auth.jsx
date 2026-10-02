@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { api } from "./api";
+import { api } from "./utils/api";
 import { theme } from "./utils/theme";
 
 export default function AuthForm({ onAuth }) {

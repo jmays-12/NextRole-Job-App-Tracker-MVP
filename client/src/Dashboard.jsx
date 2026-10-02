@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "./api";
+import { api } from "./utils/api";
 import { theme } from "./utils/theme";
 
 const STATUSES = ["applied", "interview", "offer", "rejected"];
