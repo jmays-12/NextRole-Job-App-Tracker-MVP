@@ -9,14 +9,14 @@ const today = () => {
     const d = new Date();
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
-    return `${d.getFullYear()} -${month} -${day} `;
+    return `${d.getFullYear()}-${month}-${day}`;
 };
 
 // Turns YYYY-MM-DD into MM/DD/YYYY for display
 const formatDate = (iso) => {
     if (!iso) return "";
     const [year, month, day] = iso.split("-");
-    return `${month}/${day}/${year} `;
+    return `${month}/${day}/${year}`;
 };
 
 const normalizeUrl = (url) => {
@@ -39,6 +39,8 @@ export default function Dashboard({ user, onLogout }) {
 
     const [link, setLink] = useState("");
     const [dateApplied, setDateApplied] = useState(today());
+
+    const [showHelp, setShowHelp] = useState(false);
 
     useEffect(() => {
         api.getApps().then(setApps).catch((err) => setError(err.message));
@@ -71,6 +73,7 @@ export default function Dashboard({ user, onLogout }) {
     };
 
     const handleDelete = async (id) => {
+        if (!window.confirm("Delete this application?")) return;
         try {
             await api.deleteApp(id);
             setApps((currentApps) =>
@@ -117,7 +120,44 @@ export default function Dashboard({ user, onLogout }) {
                     <p className={theme.tagline}>Application Tracker</p>
                     <div className={theme.userControls}>
                         <span className={theme.username}>{user.email}</span>
-                        <button className={theme.logoutButton} onClick={handleLogout}>Log out</button>
+
+                        <div className="relative">
+                            <button
+                                type="button"
+                                className={theme.helpButton}
+                                onClick={() => setShowHelp(!showHelp)}
+                                aria-label="How to use NextRole"
+                            >
+                                ?
+                            </button>
+
+                            {showHelp && (
+                                <div className={theme.helpPopup}>
+                                    <button
+                                        type="button"
+                                        className={theme.helpClose}
+                                        onClick={() => setShowHelp(false)}
+                                        aria-label="Close help"
+                                    >
+                                        X
+                                    </button>
+
+                                    <p className={theme.helpPopupTitle}><strong><u>How to use NextRole</u></strong></p>
+                                    <p>Add a job application using the form below.</p>
+                                    <p>Use the status buttons to track where you are in the hiring process.</p>
+                                    <p>Click <strong>Edit</strong> to add notes or update application details.</p>
+                                    <p>Click <strong>Delete</strong> to remove an application.</p>
+                                    <p>Job links will open in a new tab.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <button
+                            className={theme.logoutButton}
+                            onClick={handleLogout}
+                        >
+                            Log out
+                        </button>
                     </div>
                 </div>
 
@@ -132,7 +172,7 @@ export default function Dashboard({ user, onLogout }) {
                     <button className={theme.button} type="submit">Add application</button>
                 </form>
 
-                {apps.length === 0 && <p>No applications yet.</p>}
+                {apps.length === 0 && <p className={theme.info}>No applications yet. Fill out the form above to add your first application to track!</p>}
                 {apps.map((app) =>
                     editingId === app.id ? (
                         <div className={theme.card} key={app.id}>
@@ -150,13 +190,22 @@ export default function Dashboard({ user, onLogout }) {
                         <div className={theme.card} key={app.id}>
                             <p className={theme.companyName}><strong>{app.company}</strong></p>
                             <span className={theme.role}>Position: {app.role}</span>
-                            <p className={theme.date}>Applied {formatDate(app.date_applied)}</p>
-                            {app.link && <a className={theme.appLink} href={normalizeUrl(app.link)} target="_blank" rel="noreferrer">Job posting</a>}
-                            {app.notes && <p className={theme.notes}>Notes: {app.notes}</p>}
+                            <p className={theme.date}>Applied: {formatDate(app.date_applied)}</p>
+                            {app.link && <a className={theme.appLink} href={normalizeUrl(app.link)} target="_blank" rel="noreferrer">{app.link}</a>}
+                            {app.notes && <><span className={theme.notesTitle}>Notes:</span><p className={theme.notes}>{app.notes}</p></>}
+                            <div className={theme.statusRow}>
+                                {STATUSES.map((s) => (
+                                    <button
+                                        key={s}
+                                        type="button"
+                                        className={app.status === s ? theme.chipOn[s] : theme.chipOff}
+                                        onClick={() => app.status !== s && handleStatus(app.id, s)}
+                                    >
+                                        {s}
+                                    </button>
+                                ))}
+                            </div>
                             <div className={theme.row}>
-                                <select className={theme.dropdown} value={app.status} onChange={(e) => handleStatus(app.id, e.target.value)}>
-                                    {STATUSES.map((s) => <option key={s}>{s}</option>)}
-                                </select>
                                 <div className={theme.editButtons}>
                                     <button type="button" className={theme.button} onClick={() => startEdit(app)}>Edit</button>
                                     <button type="button" className={theme.buttonDanger} onClick={() => handleDelete(app.id)}>Delete</button>

@@ -19,3 +19,6 @@ dist/
 # Editor / OS
 .vscode/
 .DS_Store
+
+# script to start frontend+backend
+start.sh

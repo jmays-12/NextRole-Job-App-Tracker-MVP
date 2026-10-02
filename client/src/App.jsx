@@ -9,10 +9,10 @@ export default function App() {
 
     // On page load, ask the server if our session cookie is still valid
     useEffect(() => {
-        api.me().then((data) => {
-            setUser(data.user);
-            setLoading(false);
-        });
+        api.me()
+            .then((data) => setUser(data.user))
+            .catch(() => setUser(null))
+            .finally(() => setLoading(false));
     }, []);
 
     if (loading) return <p>Loading...</p>;
