@@ -18,6 +18,7 @@ if not app.config["SECRET_KEY"]:
 
 init_db()
 
+
 # reusable function wrapper for validating session
 def login_required(f):
     @wraps(f)
@@ -25,7 +26,9 @@ def login_required(f):
         if "user_id" not in session:
             return jsonify({"error": "Not logged in"}), 401
         return f(*args, **kwargs)
+
     return wrapper
+
 
 @app.post("/api/signup")
 def signup():
@@ -48,7 +51,9 @@ def signup():
 def login():
     data = request.get_json()
     user = db_one("SELECT * FROM users WHERE email = ?", (data.get("email"),))
-    if not user or not check_password_hash(user["password_hash"], data.get("password", "")):
+    if not user or not check_password_hash(
+        user["password_hash"], data.get("password", "")
+    ):
         return jsonify({"error": "Invalid email or password"}), 401
 
     session["user_id"] = user["id"]
@@ -105,17 +110,23 @@ def update_application(app_id):
         return jsonify({"error": "Not found"}), 404
 
     data = request.get_json()
+    company = data.get("company", existing["company"])
+    role = data.get("role", existing["role"])
+    if not company or not role:
+        return jsonify({"error": "Company and role required"}), 400
+
     db_run(
         "UPDATE applications SET company = ?, role = ?, status = ?, notes = ? WHERE id = ?",
         (
-            data.get("company", existing["company"]),
-            data.get("role", existing["role"]),
+            company,
+            role,
             data.get("status", existing["status"]),
             data.get("notes", existing["notes"]),
             app_id,
         ),
     )
     return jsonify(db_one("SELECT * FROM applications WHERE id = ?", (app_id,)))
+
 
 @app.delete("/api/applications/<int:app_id>")
 @login_required
