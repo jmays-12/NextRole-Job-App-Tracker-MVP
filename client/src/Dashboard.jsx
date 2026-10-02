@@ -69,47 +69,55 @@ export default function Dashboard({ user, onLogout }) {
     };
 
     return (
-        <div className={theme.page}>
-            <div className={theme.row}>
-                <h1 className={theme.heading}>NextRole</h1>
-                <span>{user.email}</span>
-                <button className={theme.button} onClick={handleLogout}>Log out</button>
+        <>
+            <div className={theme.page}>
+                <div className={theme.header}>
+                    <h1 className={theme.title}>NextRole</h1>
+                    <p className={theme.tagline}>Application Tracker</p>
+                    <div className={theme.userControls}>
+                        <span className={theme.username}>{user.email}</span>
+                        <button className={theme.logoutButton} onClick={handleLogout}>Log out</button>
+                    </div>
+                </div>
+
+
+                {error && <p className={theme.error}>{error}</p>}
+
+                <form className={theme.card} onSubmit={handleAdd}>
+                    <input className={theme.input} placeholder="Company" value={company} onChange={(e) => setCompany(e.target.value)} />
+                    <input className={theme.input} placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} />
+                    <button className={theme.button} type="submit">Add application</button>
+                </form>
+
+                {apps.length === 0 && <p>No applications yet.</p>}
+                {apps.map((app) =>
+                    editingId === app.id ? (
+                        <div className={theme.card} key={app.id}>
+                            <input className={theme.input} value={draft.company} onChange={(e) => setDraft({ ...draft, company: e.target.value })} />
+                            <input className={theme.input} value={draft.role} onChange={(e) => setDraft({ ...draft, role: e.target.value })} />
+                            <textarea className={theme.input} placeholder="Notes" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
+                            <div className={theme.row}>
+                                <button className={theme.button} onClick={() => saveEdit(app.id)}>Save</button>
+                                <button className={theme.button} onClick={() => setEditingId(null)}>Cancel</button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={theme.card} key={app.id}>
+                            <p className={theme.companyName}><strong>{app.company}</strong></p>&nbsp;{app.role}
+                            {app.notes && <p className={theme.notes}>Notes: {app.notes}</p>}
+                            <div className={theme.row}>
+                                <select value={app.status} onChange={(e) => handleStatus(app.id, e.target.value)}>
+                                    {STATUSES.map((s) => <option key={s}>{s}</option>)}
+                                </select>
+                                <div className={theme.editButtons}>
+                                    <button className={theme.button} onClick={() => startEdit(app)}>Edit</button>
+                                    <button className={theme.buttonDanger} onClick={() => handleDelete(app.id)}>Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    )
+                )}
             </div>
-
-            {error && <p className={theme.error}>{error}</p>}
-
-            <form className={theme.card} onSubmit={handleAdd}>
-                <input className={theme.input} placeholder="Company" value={company} onChange={(e) => setCompany(e.target.value)} />
-                <input className={theme.input} placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} />
-                <button className={theme.button} type="submit">Add application</button>
-            </form>
-
-            {apps.length === 0 && <p>No applications yet.</p>}
-            {apps.map((app) =>
-                editingId === app.id ? (
-                    <div className={theme.card} key={app.id}>
-                        <input className={theme.input} value={draft.company} onChange={(e) => setDraft({ ...draft, company: e.target.value })} />
-                        <input className={theme.input} value={draft.role} onChange={(e) => setDraft({ ...draft, role: e.target.value })} />
-                        <textarea className={theme.input} placeholder="Notes" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
-                        <div className={theme.row}>
-                            <button className={theme.button} onClick={() => saveEdit(app.id)}>Save</button>
-                            <button className={theme.button} onClick={() => setEditingId(null)}>Cancel</button>
-                        </div>
-                    </div>
-                ) : (
-                    <div className={theme.card} key={app.id}>
-                        <p><strong>{app.company}</strong>: {app.role}</p>
-                        {app.notes && <p>{app.notes}</p>}
-                        <div className={theme.row}>
-                            <select value={app.status} onChange={(e) => handleStatus(app.id, e.target.value)}>
-                                {STATUSES.map((s) => <option key={s}>{s}</option>)}
-                            </select>
-                            <button className={theme.button} onClick={() => startEdit(app)}>Edit</button>
-                            <button className={theme.buttonDanger} onClick={() => handleDelete(app.id)}>Delete</button>
-                        </div>
-                    </div>
-                )
-            )}
-        </div>
+        </>
     );
 }
