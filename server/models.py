@@ -2,9 +2,10 @@ import sqlite3
 
 DB_FILE = "nextrole.db"
 
+
 def get_conn():
     conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row 
+    conn.row_factory = sqlite3.Row
     return conn
 
 
@@ -44,10 +45,11 @@ def init_db():
             company TEXT NOT NULL,
             role TEXT NOT NULL,
             status TEXT NOT NULL DEFAULT 'applied',
+            link TEXT NOT NULL DEFAULT '',
+            date_applied TEXT NOT NULL DEFAULT (date('now')),
             notes TEXT NOT NULL DEFAULT '',
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
     """)
     conn.commit()
     conn.close()
-

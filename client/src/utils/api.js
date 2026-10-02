@@ -1,6 +1,9 @@
+const API_URL = "/api";
+
 const request = async (path, method = "GET", body) => {
-	const res = await fetch(`/api${path}`, {
+	const res = await fetch(`${API_URL}${path}`, {
 		method,
+		credentials: "include", // sends the session cookie
 		headers: { "Content-Type": "application/json" },
 		body: body ? JSON.stringify(body) : undefined,
 	});

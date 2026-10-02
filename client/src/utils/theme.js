@@ -2,10 +2,10 @@ export const theme = {};
 // initialize theme object first so we can inherit from other components
 theme.page = `min-h-screen bg-slate-50 relative overflow-hidden`
 
-theme.container = `max-w-xl mx-auto p-4 m-10 `
+theme.container = `max-w-2xl mx-auto p-4 m-10 `
 theme.header = `flex items-center gap-3`
 theme.title = `text-2xl font-bold mb-3`
-theme.tagline = `text-sm pb-2`
+theme.tagline = `pb-2`
 theme.username = `italic underline pt-2`
 
 theme.card = `border rounded p-3 mb-3`
@@ -22,8 +22,11 @@ theme.row = `flex gap-2 items-center`
 theme.link = `underline cursor-pointer`
 
 theme.userControls = `ml-auto flex gap-3`
-theme.companyName = `capitalize underline text-lg`
-theme.notes = `italic`
+theme.companyName = `capitalize underline text-xl m-1`
+theme.role = `text-gray-800 m-1 block`
+theme.notes = `text-sm text-gray-500 m-1`
+theme.appLink = `underline text-blue-600 block m-1`
+theme.date = `text-sm text-gray-600 m-1`
 
 theme.input = `border rounded p-1 w-full mb-2`
 theme.dropdown = `border rounded px-3 py-1 bg-white cursor-pointer`

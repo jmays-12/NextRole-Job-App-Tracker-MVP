@@ -1,15 +1,17 @@
 import os
-from dotenv import load_dotenv
-
+from datetime import datetime, timezone
 from functools import wraps
-from flask import Flask, request, session, jsonify
-from werkzeug.security import generate_password_hash, check_password_hash
 
+from dotenv import load_dotenv
+from flask import Flask, jsonify, request, session
+from flask_cors import CORS
 from models import db_all, db_one, db_run, init_db
+from werkzeug.security import check_password_hash, generate_password_hash
 
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 
@@ -17,6 +19,8 @@ if not app.config["SECRET_KEY"]:
     raise RuntimeError("SECRET_KEY environment variable is not set")
 
 init_db()
+
+VALID_STATUSES = ["applied", "interviewing", "offer", "rejected", "withdrawn"]
 
 
 # reusable function wrapper for validating session
@@ -93,8 +97,14 @@ def create_application():
         return jsonify({"error": "Company and role required"}), 400
 
     new_id, _ = db_run(
-        "INSERT INTO applications (user_id, company, role) VALUES (?, ?, ?)",
-        (session["user_id"], company, role),
+        "INSERT INTO applications (user_id, company, role, link, date_applied) VALUES (?, ?, ?, ?, ?)",
+        (
+            session["user_id"],
+            company,
+            role,
+            data.get("link", ""),
+            data.get("date_applied") or datetime.now(timezone.utc).date().isoformat(),
+        ),
     )
     return jsonify(db_one("SELECT * FROM applications WHERE id = ?", (new_id,))), 201
 
@@ -112,15 +122,23 @@ def update_application(app_id):
     data = request.get_json()
     company = data.get("company", existing["company"])
     role = data.get("role", existing["role"])
+    status = data.get("status", existing["status"])
+
     if not company or not role:
         return jsonify({"error": "Company and role required"}), 400
+    if status not in VALID_STATUSES:
+        return jsonify({"error": "Invalid status"}), 400
 
     db_run(
-        "UPDATE applications SET company = ?, role = ?, status = ?, notes = ? WHERE id = ?",
+        """UPDATE applications
+           SET company = ?, role = ?, status = ?, link = ?, date_applied = ?, notes = ?
+           WHERE id = ?""",
         (
             company,
             role,
-            data.get("status", existing["status"]),
+            status,
+            data.get("link", existing["link"]),
+            data.get("date_applied", existing["date_applied"]),
             data.get("notes", existing["notes"]),
             app_id,
         ),

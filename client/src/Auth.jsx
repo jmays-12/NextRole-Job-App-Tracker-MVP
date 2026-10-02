@@ -22,33 +22,35 @@ export default function AuthForm({ onAuth }) {
 
     return (
         <div className={theme.page}>
-            <h1 className={theme.heading}>NextRole: {isSignup ? "Sign up" : "Log in"}</h1>
-            {error && <p className={theme.error}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <input
-                    className={theme.input}
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <input
-                    className={theme.input}
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <button className={theme.button} type="submit">
-                    {isSignup ? "Create account" : "Log in"}
-                </button>
-            </form>
-            <p className="mt-3">
-                {isSignup ? "Have an account? " : "No account? "}
-                <span className={theme.link} onClick={() => setIsSignup(!isSignup)}>
-                    {isSignup ? "Log in" : "Sign up"}
-                </span>
-            </p>
+            <div className={theme.container}>
+                <h1 className={theme.heading}>NextRole: {isSignup ? "Sign up" : "Log in"}</h1>
+                {error && <p className={theme.error}>{error}</p>}
+                <form onSubmit={handleSubmit}>
+                    <input
+                        className={theme.input}
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <input
+                        className={theme.input}
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button className={theme.button} type="submit">
+                        {isSignup ? "Create account" : "Log in"}
+                    </button>
+                </form>
+                <p className="mt-3">
+                    {isSignup ? "Have an account? " : "No account? "}
+                    <span className={theme.link} onClick={() => setIsSignup(!isSignup)}>
+                        {isSignup ? "Log in" : "Sign up"}
+                    </span>
+                </p>
+            </div>
         </div>
     );
 }
