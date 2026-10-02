@@ -1,10 +1,13 @@
 import os
+from dotenv import load_dotenv
 
 from functools import wraps
 from flask import Flask, request, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from models import db_all, db_one, db_run, init_db
+
+load_dotenv()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
@@ -15,7 +18,7 @@ if not app.config["SECRET_KEY"]:
 
 init_db()
 
-
+# reusable function wrapper for validating session
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -94,15 +97,25 @@ def create_application():
 @app.patch("/api/applications/<int:app_id>")
 @login_required
 def update_application(app_id):
-    status = request.get_json().get("status")
-    _, changed = db_run(
-        "UPDATE applications SET status = ? WHERE id = ? AND user_id = ?",
-        (status, app_id, session["user_id"]),
+    existing = db_one(
+        "SELECT * FROM applications WHERE id = ? AND user_id = ?",
+        (app_id, session["user_id"]),
     )
-    if changed == 0:
+    if not existing:
         return jsonify({"error": "Not found"}), 404
-    return jsonify(db_one("SELECT * FROM applications WHERE id = ?", (app_id,)))
 
+    data = request.get_json()
+    db_run(
+        "UPDATE applications SET company = ?, role = ?, status = ?, notes = ? WHERE id = ?",
+        (
+            data.get("company", existing["company"]),
+            data.get("role", existing["role"]),
+            data.get("status", existing["status"]),
+            data.get("notes", existing["notes"]),
+            app_id,
+        ),
+    )
+    return jsonify(db_one("SELECT * FROM applications WHERE id = ?", (app_id,)))
 
 @app.delete("/api/applications/<int:app_id>")
 @login_required

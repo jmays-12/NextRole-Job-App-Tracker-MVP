@@ -44,10 +44,10 @@ def init_db():
             company TEXT NOT NULL,
             role TEXT NOT NULL,
             status TEXT NOT NULL DEFAULT 'applied',
+            notes TEXT NOT NULL DEFAULT '',
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
     """)
     conn.commit()
     conn.close()
 
-init_db()
