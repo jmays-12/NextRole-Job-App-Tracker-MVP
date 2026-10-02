@@ -30,7 +30,7 @@ One user has many applications.
 
 ## API Routes
 
-| Method | Route | Auth | Purpose |
+| Method | Route | Auth. req'd? | Purpose |
 |---|---|---|---|
 | POST | `/api/signup` | no | Create account and log in |
 | POST | `/api/login` | no | Log in |
@@ -91,7 +91,7 @@ client/src/
 
 ## Known Issues and Placeholders
 
-- Styling is placeholder only. All classes live in `client/src/utils/theme.js`, so restyling happens in one place.
+- Styling is not finalized. All classes live in `client/src/utils/theme.js`, so restyling happens in one place.
 - No password rules or email format validation beyond "required".
 - No filtering or sorting of applications yet.
 - No React Router yet. The app switches between login and dashboard with conditional rendering.
